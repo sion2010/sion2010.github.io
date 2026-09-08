@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>評估卷載入中</title>
+<style>body{font-family:"Microsoft JhengHei",sans-serif;background:#f6f3eb;color:#1c2430;padding:40px;text-align:center}</style>
+</head><body>
+<p id="msg">正在載入評估卷…</p>
+<script>
+(function(){
+  var urls = [
+    "https://raw.githubusercontent.com/sion2010/s1-ineq-quiz/main/評估卷_index.html",
+    "https://cdn.jsdelivr.net/gh/sion2010/s1-ineq-quiz@main/評估卷_index.html"
+  ];
+  function go(i){
+    if(i>=urls.length){
+      document.getElementById("msg").textContent="載入失敗，請改用電腦 Chrome 直接打開下載的 index.html";
+      return;
+    }
+    fetch(urls[i], {cache:"no-store"}).then(function(r){
+      if(!r.ok) throw new Error("bad");
+      return r.text();
+    }).then(function(html){
+      if(!html || html.indexOf("學生")===-1) throw new Error("not quiz");
+      document.open(); document.write(html); document.close();
+    }).catch(function(){ go(i+1); });
+  }
+  go(0);
+})();
+</script>
+</body></html>
