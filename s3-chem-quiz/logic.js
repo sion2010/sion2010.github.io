@@ -7,19 +7,26 @@ STUDENTS.forEach(s => {
   sel.appendChild(o);
 });
 let currentUser = null, qi = 0, mode = "first", currentQueue = [], queuePtr = 0;
-let answers = [], locked = [], judgedWrong = [], optionOrder = [];
+let answers = [], locked = [], judgedWrong = [], optionOrder = [], wrongPicks = [];
 let totalWrongTries = 0, redoRound = 0, advancing = false, lastRec = null;
 function normId(s) {
   const d = String(s || "").replace(/\D/g, "");
   if (!d) return "";
   return d.padStart(2, "0").slice(-2);
 }
+function useIconFallback(el, key) {
+  if (typeof ICONS !== "undefined" && ICONS[key]) el.outerHTML = ICONS[key];
+  else el.style.display = "none";
+}
 function picHTML(item) {
-  if (item && item.img && window.IMAGES && IMAGES[item.img]) {
-    const tall = item.img === "burette_diagram" ? " tall" : "";
-    return '<img class="qimg' + tall + '" src="' + IMAGES[item.img] + '" alt="">';
+  if (!item) return "";
+  const key = item.img;
+  const tall = key === "burette_diagram" ? " tall" : "";
+  if (key && window.IMAGES && IMAGES[key]) {
+    return '<img class="qimg' + tall + '" src="' + IMAGES[key] + '" alt="" onerror="useIconFallback(this,\'' + key + '\')">';
   }
-  if (item && item.pic && typeof ICONS !== "undefined" && ICONS[item.pic]) return ICONS[item.pic];
+  if (key && typeof ICONS !== "undefined" && ICONS[key]) return ICONS[key];
+  if (item.pic && typeof ICONS !== "undefined" && ICONS[item.pic]) return ICONS[item.pic];
   return "";
 }
 function shuffledOrder() {
@@ -33,7 +40,7 @@ function shuffledOrder() {
 function showFeedback(type, text) {
   const el = document.getElementById("feedback");
   el.className = type;
-  el.textContent = text;
+  el.innerHTML = text;
 }
 function hideFeedback() {
   const el = document.getElementById("feedback");
@@ -47,6 +54,7 @@ function startFirst() {
   answers = Array(QUESTIONS.length).fill(null);
   locked = Array(QUESTIONS.length).fill(false);
   judgedWrong = Array(QUESTIONS.length).fill(false);
+  wrongPicks = QUESTIONS.map(() => []);
   optionOrder = QUESTIONS.map(() => [0,1,2,3]);
   totalWrongTries = 0; advancing = false;
   renderQ();
@@ -58,6 +66,7 @@ function startRedo() {
     optionOrder[i] = shuffledOrder();
     answers[i] = null;
     judgedWrong[i] = false;
+    wrongPicks[i] = [];
   });
   queuePtr = 0; qi = currentQueue[0]; advancing = false;
   renderQ();
@@ -100,22 +109,31 @@ function renderQ() {
   const order = optionOrder[qi];
   const box = document.getElementById("opts");
   box.innerHTML = "";
+  const pickedWrong = wrongPicks[qi] || [];
   order.forEach((orig, display) => {
     const b = document.createElement("button");
     const isPicked = answers[qi] === orig;
     let cls = "opt";
     if (locked[qi] && orig === item.ans) cls += " correct locked";
-    else if (judgedWrong[qi] && isPicked) cls += " wrong";
+    else if (pickedWrong.indexOf(orig) !== -1) cls += " wrong";
     else if (isPicked) cls += " picked";
     b.className = cls;
     b.textContent = ["A","B","C","D"][display] + ".  " + item.options[orig];
-    b.disabled = locked[qi] || judgedWrong[qi] || advancing;
+    b.disabled = locked[qi] || advancing || pickedWrong.indexOf(orig) !== -1;
     b.onclick = () => onPick(orig);
     box.appendChild(b);
   });
   const nextBtn = document.getElementById("nextBtn");
   if (judgedWrong[qi] && !locked[qi]) {
-    showFeedback("bad", "今次未答對。按「下一題」繼續，稍後會重做此題。");
+    const lastWrong = pickedWrong[pickedWrong.length - 1];
+    const specific = (item.wrongHints && lastWrong != null) ? item.wrongHints[lastWrong] : "";
+    const general = item.hint || "再睇一次題目同選項，諗下點解剛才喺個選擇未夠準。";
+    const hintText = specific || general;
+    showFeedback("bad",
+      "<div class=\"hint-title\">未答對，先一齊想一想</div>" +
+      "<div>" + hintText + "</div>" +
+      "<div class=\"hint-next\">可以再選其他選項；或者按「下一題」，稍後重做。</div>"
+    );
     nextBtn.classList.remove("hidden");
     nextBtn.textContent = queuePtr === currentQueue.length - 1 ? (remain > 0 ? "開始重做錯題" : "完成") : "下一題";
   } else if (locked[qi]) {
@@ -127,14 +145,18 @@ function renderQ() {
   }
 }
 function onPick(orig) {
-  if (locked[qi] || judgedWrong[qi] || advancing) return;
+  if (locked[qi] || advancing) return;
+  if ((wrongPicks[qi] || []).indexOf(orig) !== -1) return;
   answers[qi] = orig;
   if (orig === QUESTIONS[qi].ans) {
     locked[qi] = true; judgedWrong[qi] = false; advancing = true;
     renderQ();
     setTimeout(goNextInQueue, 450);
   } else {
-    judgedWrong[qi] = true; totalWrongTries += 1; renderQ();
+    wrongPicks[qi] = (wrongPicks[qi] || []).concat([orig]);
+    judgedWrong[qi] = true;
+    totalWrongTries += 1;
+    renderQ();
   }
 }
 document.getElementById("nextBtn").onclick = () => {
@@ -144,10 +166,10 @@ document.getElementById("nextBtn").onclick = () => {
 function buildWaText(rec) {
   const when = new Date(rec.time).toLocaleString("zh-HK");
   return [
-    "中三化學小測結果",
+    "化學小測結果",
     "學號：" + rec.id,
     "姓名：" + rec.name,
-    "成績：30/30（已完成）",
+    "成績：" + rec.score + "/" + QUESTIONS.length + "（已完成）",
     "選錯次數：" + rec.wrongTries,
     "重做輪數：" + rec.redoRounds,
     "完成時間：" + when
@@ -155,7 +177,8 @@ function buildWaText(rec) {
 }
 function submitQuiz() {
   if (!locked.every(Boolean)) return;
-  const rec = { id: currentUser.id, name: currentUser.name, score: 30, completed: true, wrongTries: totalWrongTries, redoRounds: redoRound, answers: answers.slice(), time: new Date().toISOString() };
+  const N = QUESTIONS.length;
+  const rec = { id: currentUser.id, name: currentUser.name, score: N, completed: true, wrongTries: totalWrongTries, redoRounds: redoRound, answers: answers.slice(), time: new Date().toISOString() };
   lastRec = rec;
   const all = JSON.parse(localStorage.getItem("chem30_results") || "{}");
   all[currentUser.id] = rec;
@@ -163,12 +186,12 @@ function submitQuiz() {
   localStorage.setItem("chem30_last", JSON.stringify(rec));
   document.getElementById("quizCard").classList.add("hidden");
   document.getElementById("resultCard").classList.remove("hidden");
-  document.getElementById("scoreNum").innerHTML = "30<span> / 30</span>";
+  document.getElementById("scoreNum").innerHTML = N + "<span> / " + N + "</span>";
   const name = currentUser.name;
   let cheer;
-  if (totalWrongTries === 0) cheer = name + "，太棒了！一次過 30 題全對，基礎好穩陣，繼續保持這份細心同努力！";
+  if (totalWrongTries === 0) cheer = name + "，太棒了！一次過 " + N + " 題全對，基礎好穩陣，繼續保持這份細心同努力！";
   else if (redoRound <= 1) cheer = name + "，做得好！錯題都已經更正，全數完成。肯改、肯再試，就係學化學最重要嘅態度。";
-  else cheer = name + "，恭喜完成！經過 " + redoRound + " 輪重做，而家 30 題全部正確。堅持到最後，非常了不起！";
+  else cheer = name + "，恭喜完成！經過 " + redoRound + " 輪重做，而家 " + N + " 題全部正確。堅持到最後，非常了不起！";
   document.getElementById("scoreMsg").textContent = cheer;
   document.getElementById("tryInfo").textContent = totalWrongTries === 0 ? "一次過全對，沒有選錯過。" : "過程中共選錯 " + totalWrongTries + " 次，最後已全部更正。";
   document.getElementById("savedNote").textContent = "成績已自動儲存。請按下面綠色按鈕用 WhatsApp 傳給老師。";
@@ -208,7 +231,7 @@ document.getElementById("showRecBtn").onclick = () => {
   const all = JSON.parse(localStorage.getItem("chem30_results") || "{}");
   const rows = STUDENTS.map(s => {
     const r = all[s.id];
-    return "<tr><td>"+s.id+"</td><td>"+s.name+"</td><td>"+(r && r.completed ? "已完成 30/30" : "未完成")+"</td><td>"+(r && r.wrongTries != null ? r.wrongTries : "—")+"</td><td>"+(r ? new Date(r.time).toLocaleString("zh-HK") : "—")+"</td></tr>";
+    return "<tr><td>"+s.id+"</td><td>"+s.name+"</td><td>"+(r && r.completed ? "已完成 "+(r.score||QUESTIONS.length)+"/"+QUESTIONS.length : "未完成")+"</td><td>"+(r && r.wrongTries != null ? r.wrongTries : "—")+"</td><td>"+(r ? new Date(r.time).toLocaleString("zh-HK") : "—")+"</td></tr>";
   }).join("");
   document.getElementById("recBox").innerHTML = "<table><thead><tr><th>學號</th><th>姓名</th><th>狀態</th><th>選錯次數</th><th>完成時間</th></tr></thead><tbody>"+rows+"</tbody></table>";
 };
