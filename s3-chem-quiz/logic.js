@@ -1,3 +1,4 @@
+const TEACHER_WHATSAPP = "85296542637";
 const sel = document.getElementById("nameSel");
 STUDENTS.forEach(s => {
   const o = document.createElement("option");
@@ -7,7 +8,12 @@ STUDENTS.forEach(s => {
 });
 let currentUser = null, qi = 0, mode = "first", currentQueue = [], queuePtr = 0;
 let answers = [], locked = [], judgedWrong = [], optionOrder = [];
-let totalWrongTries = 0, redoRound = 0, advancing = false;
+let totalWrongTries = 0, redoRound = 0, advancing = false, lastRec = null;
+function normId(s) {
+  const d = String(s || "").replace(/\D/g, "");
+  if (!d) return "";
+  return d.padStart(2, "0").slice(-2);
+}
 function shuffledOrder() {
   const a = [0,1,2,3];
   for (let i = a.length - 1; i > 0; i--) {
@@ -57,11 +63,11 @@ function goNextInQueue() {
 }
 document.getElementById("loginBtn").onclick = () => {
   const id = sel.value;
-  const pw = document.getElementById("pw").value.trim();
+  const pw = normId(document.getElementById("pw").value);
   const err = document.getElementById("loginErr");
   err.textContent = "";
   if (!id) { err.textContent = "請先選擇姓名。"; return; }
-  if (pw !== CLASS_PASSWORD) { err.textContent = "密碼不正確。"; return; }
+  if (pw !== id) { err.textContent = "密碼不正確。請輸入自己的學號兩位數字。"; return; }
   currentUser = STUDENTS.find(s => s.id === id);
   document.getElementById("who").textContent = currentUser.id + " " + currentUser.name;
   document.getElementById("loginCard").classList.add("hidden");
@@ -127,12 +133,26 @@ document.getElementById("nextBtn").onclick = () => {
   if (!judgedWrong[qi] || locked[qi] || advancing) return;
   goNextInQueue();
 };
+function buildWaText(rec) {
+  const when = new Date(rec.time).toLocaleString("zh-HK");
+  return [
+    "中三化學小測結果",
+    "學號：" + rec.id,
+    "姓名：" + rec.name,
+    "成績：30/30（已完成）",
+    "選錯次數：" + rec.wrongTries,
+    "重做輪數：" + rec.redoRounds,
+    "完成時間：" + when
+  ].join("\n");
+}
 function submitQuiz() {
   if (!locked.every(Boolean)) return;
   const rec = { id: currentUser.id, name: currentUser.name, score: 30, completed: true, wrongTries: totalWrongTries, redoRounds: redoRound, answers: answers.slice(), time: new Date().toISOString() };
+  lastRec = rec;
   const all = JSON.parse(localStorage.getItem("chem30_results") || "{}");
   all[currentUser.id] = rec;
   localStorage.setItem("chem30_results", JSON.stringify(all));
+  localStorage.setItem("chem30_last", JSON.stringify(rec));
   document.getElementById("quizCard").classList.add("hidden");
   document.getElementById("resultCard").classList.remove("hidden");
   document.getElementById("scoreNum").innerHTML = "30<span> / 30</span>";
@@ -143,6 +163,7 @@ function submitQuiz() {
   else cheer = name + "，恭喜完成！經過 " + redoRound + " 輪重做，而家 30 題全部正確。堅持到最後，非常了不起！";
   document.getElementById("scoreMsg").textContent = cheer;
   document.getElementById("tryInfo").textContent = totalWrongTries === 0 ? "一次過全對，沒有選錯過。" : "過程中共選錯 " + totalWrongTries + " 次，最後已全部更正。";
+  document.getElementById("savedNote").textContent = "成績已自動儲存。請按下面綠色按鈕用 WhatsApp 傳給老師。";
   const sections = {};
   QUESTIONS.forEach((q, i) => {
     if (!sections[q.section]) sections[q.section] = { t: 0, c: 0 };
@@ -153,6 +174,12 @@ function submitQuiz() {
   document.getElementById("chipGrid").innerHTML = QUESTIONS.map((q, i) => "<div class=\"chip "+(answers[i]===q.ans?"ok":"no")+"\">"+(i+1)+"</div>").join("");
   document.getElementById("reviewBox").classList.add("hidden");
 }
+document.getElementById("waBtn").onclick = () => {
+  const rec = lastRec || JSON.parse(localStorage.getItem("chem30_last") || "null");
+  if (!rec) { alert("未有可傳送的成績。"); return; }
+  const url = "https://wa.me/" + TEACHER_WHATSAPP + "?text=" + encodeURIComponent(buildWaText(rec));
+  window.open(url, "_blank");
+};
 document.getElementById("reviewBtn").onclick = () => {
   const box = document.getElementById("reviewBox");
   box.classList.remove("hidden");
