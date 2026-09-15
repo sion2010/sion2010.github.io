@@ -5,143 +5,67 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>中三化學小測 · 30題</title>
   <style>
-    :root {
-      --navy: #0b3a6e;
-      --navy-2: #0e4a8c;
-      --sky: #e8f1fb;
-      --card: #ffffff;
-      --ink: #1c2a3a;
-      --muted: #5b6b7c;
-      --line: #d5e0ea;
-      --ok: #0f9d58;
-      --ok-bg: #e8f8ef;
-      --bad: #d93025;
-      --bad-bg: #fdecea;
-      --accent: #e67e22;
-      --shadow: 0 10px 30px rgba(11, 58, 110, 0.10);
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
-      background: linear-gradient(180deg, #dceaf8 0%, #f4f7fb 220px, #f4f7fb 100%);
-      color: var(--ink);
-      min-height: 100vh;
-    }
-    .wrap { max-width: 860px; margin: 0 auto; padding: 20px 16px 48px; }
-    header.app {
-      background: var(--navy);
-      color: #fff;
-      border-radius: 18px;
-      padding: 18px 22px;
-      box-shadow: var(--shadow);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-    }
-    header.app h1 { font-size: 1.15rem; letter-spacing: .04em; }
-    header.app p { opacity: .85; font-size: .86rem; margin-top: 4px; }
-    .badge {
-      background: var(--accent);
-      color: #fff;
-      font-weight: 700;
-      border-radius: 999px;
-      padding: 6px 12px;
-      font-size: .82rem;
-      white-space: nowrap;
-    }
-    .card {
-      background: var(--card);
-      border-radius: 18px;
-      box-shadow: var(--shadow);
-      padding: 22px;
-      margin-top: 16px;
-      border: 1px solid #e6eef6;
-    }
-    label { display: block; font-weight: 700; margin: 12px 0 6px; }
-    select, input[type="password"] {
-      width: 100%;
-      padding: 12px 14px;
-      border: 1.5px solid var(--line);
-      border-radius: 12px;
-      font-size: 1rem;
-      background: #fff;
-      font-family: inherit;
-    }
-    select:focus, input:focus { outline: 2px solid #8cb6e8; border-color: var(--navy-2); }
-    .btn {
-      display: inline-flex; align-items: center; justify-content: center;
-      gap: 8px; border: 0; cursor: pointer; font-family: inherit;
-      font-weight: 700; border-radius: 12px; padding: 12px 18px; font-size: 1rem;
-    }
-    .btn-primary { background: var(--navy); color: #fff; width: 100%; margin-top: 18px; }
-    .btn-primary:hover { background: var(--navy-2); }
-    .btn-ghost { background: #eef3f8; color: var(--navy); }
-    .btn-ok { background: var(--ok); color: #fff; }
-    .btn:disabled { opacity: .45; cursor: not-allowed; }
-    .row { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
-    .hint { color: var(--muted); font-size: .9rem; margin-top: 10px; line-height: 1.5; }
-    .error { color: var(--bad); font-weight: 700; margin-top: 10px; min-height: 1.2em; }
-    .progress-wrap { margin: 16px 0 8px; }
-    .progress-meta { display: flex; justify-content: space-between; font-size: .9rem; color: var(--muted); margin-bottom: 6px; }
-    .bar { height: 10px; background: #e1eaf3; border-radius: 99px; overflow: hidden; }
-    .bar > i { display: block; height: 100%; background: linear-gradient(90deg, #1a73e8, #12b5c9); width: 0; transition: width .25s ease; }
-    .section-tag {
-      display: inline-block; background: var(--sky); color: var(--navy);
-      font-weight: 700; font-size: .78rem; padding: 4px 10px; border-radius: 999px;
-      margin-bottom: 10px;
-    }
-    .q-title { font-size: 1.12rem; line-height: 1.65; }
-    .pictowrap { display: flex; justify-content: center; margin: 16px 0 8px; }
-    .options { display: grid; gap: 10px; margin-top: 16px; }
-    .opt {
-      border: 1.5px solid var(--line);
-      background: #fff;
-      border-radius: 12px;
-      padding: 12px 14px;
-      text-align: left;
-      cursor: pointer;
-      font-size: 1rem;
-      line-height: 1.45;
-      font-family: inherit;
-    }
-    .opt:hover { border-color: #9bb8d6; background: #f7fbff; }
-    .opt.picked { border-color: var(--navy); background: #eaf2fb; box-shadow: inset 0 0 0 1px var(--navy); }
-    .opt.correct { border-color: var(--ok); background: var(--ok-bg); }
-    .opt.wrong { border-color: var(--bad); background: var(--bad-bg); opacity: .75; }
-    .opt:disabled { cursor: not-allowed; }
-    .result-hero { text-align: center; padding: 8px 0 6px; }
-    .score-num { font-size: 3.2rem; font-weight: 800; color: var(--navy); line-height: 1; }
-    .score-num span { font-size: 1.3rem; color: var(--muted); font-weight: 600; }
-    .grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 14px; }
-    .chip { text-align: center; padding: 8px 0; border-radius: 10px; font-weight: 700; background: #eef3f8; font-size: .9rem; }
-    .chip.ok { background: var(--ok-bg); color: #0b7a43; }
-    .chip.no { background: var(--bad-bg); color: #a51f18; }
-    table { width: 100%; border-collapse: collapse; font-size: .92rem; }
-    th, td { border-bottom: 1px solid var(--line); padding: 8px 6px; text-align: left; vertical-align: top; }
-    th { color: var(--muted); font-weight: 700; }
-    .hidden { display: none !important; }
-    .explain { margin-top: 10px; background: #fff8e8; border: 1px solid #f3dd9a; border-radius: 12px; padding: 10px 12px; font-size: .92rem; line-height: 1.55; }
-    footer { text-align: center; color: var(--muted); font-size: .8rem; margin-top: 22px; }
-    #feedback { margin-top: 12px; border-radius: 12px; padding: 10px 12px; font-size: .95rem; line-height: 1.5; font-weight: 700; }
-    #feedback.bad { background: var(--bad-bg); color: #a51f18; border: 1px solid #f5c2be; }
-    #feedback.ok { background: var(--ok-bg); color: #0b7a43; border: 1px solid #b7e4c7; }
-    .opt.locked { cursor: default; }
-    .need-all { margin-top: 8px; font-size: .86rem; color: var(--accent); font-weight: 700; }
+    :root { --navy:#0b3a6e; --navy-2:#0e4a8c; --sky:#e8f1fb; --card:#fff; --ink:#1c2a3a; --muted:#5b6b7c; --line:#d5e0ea; --ok:#0f9d58; --ok-bg:#e8f8ef; --bad:#d93025; --bad-bg:#fdecea; --accent:#e67e22; --shadow:0 10px 30px rgba(11,58,110,.10); }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;background:linear-gradient(180deg,#dceaf8 0%,#f4f7fb 220px,#f4f7fb 100%);color:var(--ink);min-height:100vh}
+    .wrap{max-width:860px;margin:0 auto;padding:20px 16px 48px}
+    header.app{background:var(--navy);color:#fff;border-radius:18px;padding:18px 22px;box-shadow:var(--shadow);display:flex;justify-content:space-between;align-items:center;gap:12px}
+    header.app h1{font-size:1.15rem;letter-spacing:.04em}
+    header.app p{opacity:.85;font-size:.86rem;margin-top:4px}
+    .badge{background:var(--accent);color:#fff;font-weight:700;border-radius:999px;padding:6px 12px;font-size:.82rem;white-space:nowrap}
+    .card{background:var(--card);border-radius:18px;box-shadow:var(--shadow);padding:22px;margin-top:16px;border:1px solid #e6eef6}
+    label{display:block;font-weight:700;margin:12px 0 6px}
+    select,input[type=password]{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;font-size:1rem;background:#fff;font-family:inherit}
+    select:focus,input:focus{outline:2px solid #8cb6e8;border-color:var(--navy-2)}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;cursor:pointer;font-family:inherit;font-weight:700;border-radius:12px;padding:12px 18px;font-size:1rem}
+    .btn-primary{background:var(--navy);color:#fff;width:100%;margin-top:18px}
+    .btn-ghost{background:#eef3f8;color:var(--navy)}
+    .btn:disabled{opacity:.45;cursor:not-allowed}
+    .row{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+    .hint{color:var(--muted);font-size:.9rem;margin-top:10px;line-height:1.5}
+    .error{color:var(--bad);font-weight:700;margin-top:10px;min-height:1.2em}
+    .progress-wrap{margin:16px 0 8px}
+    .progress-meta{display:flex;justify-content:space-between;font-size:.9rem;color:var(--muted);margin-bottom:6px}
+    .bar{height:10px;background:#e1eaf3;border-radius:99px;overflow:hidden}
+    .bar>i{display:block;height:100%;background:linear-gradient(90deg,#1a73e8,#12b5c9);width:0;transition:width .25s ease}
+    .section-tag{display:inline-block;background:var(--sky);color:var(--navy);font-weight:700;font-size:.78rem;padding:4px 10px;border-radius:999px;margin-bottom:10px}
+    .q-title{font-size:1.12rem;line-height:1.65}
+    .pictowrap{display:flex;justify-content:center;margin:16px 0 8px}
+    .options{display:grid;gap:10px;margin-top:16px}
+    .opt{border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:12px 14px;text-align:left;cursor:pointer;font-size:1rem;line-height:1.45;font-family:inherit}
+    .opt:hover{border-color:#9bb8d6;background:#f7fbff}
+    .opt.picked{border-color:var(--navy);background:#eaf2fb;box-shadow:inset 0 0 0 1px var(--navy)}
+    .opt.correct{border-color:var(--ok);background:var(--ok-bg)}
+    .opt.wrong{border-color:var(--bad);background:var(--bad-bg);opacity:.75}
+    .opt:disabled{cursor:not-allowed}
+    .result-hero{text-align:center;padding:8px 0 6px}
+    .score-num{font-size:3.2rem;font-weight:800;color:var(--navy);line-height:1}
+    .score-num span{font-size:1.3rem;color:var(--muted);font-weight:600}
+    .grid-5{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:14px}
+    .chip{text-align:center;padding:8px 0;border-radius:10px;font-weight:700;background:#eef3f8;font-size:.9rem}
+    .chip.ok{background:var(--ok-bg);color:#0b7a43}
+    .chip.no{background:var(--bad-bg);color:#a51f18}
+    table{width:100%;border-collapse:collapse;font-size:.92rem}
+    th,td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left;vertical-align:top}
+    th{color:var(--muted);font-weight:700}
+    .hidden{display:none!important}
+    .explain{margin-top:10px;background:#fff8e8;border:1px solid #f3dd9a;border-radius:12px;padding:10px 12px;font-size:.92rem;line-height:1.55}
+    footer{text-align:center;color:var(--muted);font-size:.8rem;margin-top:22px}
+    #feedback{margin-top:12px;border-radius:12px;padding:10px 12px;font-size:.95rem;line-height:1.5;font-weight:700}
+    #feedback.bad{background:var(--bad-bg);color:#a51f18;border:1px solid #f5c2be}
+    #feedback.ok{background:var(--ok-bg);color:#0b7a43;border:1px solid #b7e4c7}
+    .need-all{margin-top:8px;font-size:.86rem;color:var(--accent);font-weight:700}
   </style>
 </head>
 <body>
   <div class="wrap">
     <header class="app">
-      <div>
-        <h1>中三化學小測</h1>
-        <p>危險標籤 · 實驗儀器 · 純物質與混合物 · 空氣與氧氣 · 溶液</p>
-      </div>
+      <div><h1>中三化學小測</h1><p>危險標籤 · 實驗儀器 · 純物質與混合物 · 空氣與氧氣 · 溶液</p></div>
       <div class="badge">30 題 MC</div>
     </header>
     <section id="loginCard" class="card">
-      <h2 style="margin-bottom:8px;">學生登入</h2>
-      <p class="hint">請選擇姓名並輸入課堂密碼。答對會自動下一題；答錯可按「下一題」繼續。全部試完後會重做錯題（選項次序會轉換），全對才算完成。</p>
+      <h2 style="margin-bottom:8px">學生登入</h2>
+      <p class="hint">請選擇姓名並輸入課堂密碼。答對會自動下一題；答錯可按「下一題」繼續。全部試完後會重做錯題，全對才算完成。</p>
       <label for="nameSel">學生姓名</label>
       <select id="nameSel"><option value="">— 請選擇 —</option></select>
       <label for="pw">課堂密碼</label>
@@ -159,9 +83,7 @@
       <div class="pictowrap" id="picto"></div>
       <div class="options" id="opts"></div>
       <div id="feedback" class="hidden"></div>
-      <div class="row" id="navRow">
-        <button class="btn btn-primary" id="nextBtn" style="width:100%;margin-top:0;">下一題</button>
-      </div>
+      <div class="row"><button class="btn btn-primary" id="nextBtn" style="width:100%;margin-top:0">下一題</button></div>
     </section>
     <section id="resultCard" class="card hidden">
       <div class="result-hero">
@@ -170,30 +92,32 @@
         <p id="scoreMsg" class="hint"></p>
         <p class="need-all" id="tryInfo"></p>
       </div>
-      <h3 style="margin-top:12px;">分部表現</h3>
-      <div id="sectionScores" style="margin-top:8px;"></div>
-      <h3 style="margin-top:18px;">題號一覽</h3>
+      <h3 style="margin-top:12px">分部表現</h3>
+      <div id="sectionScores" style="margin-top:8px"></div>
+      <h3 style="margin-top:18px">題號一覽</h3>
       <div class="grid-5" id="chipGrid"></div>
       <div class="row">
         <button class="btn btn-ghost" id="reviewBtn">逐題睇答案</button>
         <button class="btn btn-ghost" id="againBtn">返回登入</button>
       </div>
-      <div id="reviewBox" class="hidden" style="margin-top:16px;"></div>
-      <hr style="margin:22px 0;border:0;border-top:1px solid var(--line);" />
+      <div id="reviewBox" class="hidden" style="margin-top:16px"></div>
+      <hr style="margin:22px 0;border:0;border-top:1px solid var(--line)" />
       <details>
-        <summary style="cursor:pointer;font-weight:700;">老師功能（本機成績）</summary>
+        <summary style="cursor:pointer;font-weight:700">老師功能（本機成績）</summary>
         <p class="hint">成績只儲存在這部裝置的瀏覽器。</p>
-        <input id="teacherPw" type="password" placeholder="老師密碼" style="margin-top:8px;" />
+        <input id="teacherPw" type="password" placeholder="老師密碼" style="margin-top:8px" />
         <div class="row">
           <button class="btn btn-ghost" id="showRecBtn">顯示紀錄</button>
           <button class="btn btn-ghost" id="exportBtn">下載 CSV</button>
           <button class="btn btn-ghost" id="clearBtn">清除本機紀錄</button>
         </div>
-        <div id="recBox" style="margin-top:12px;overflow:auto;"></div>
+        <div id="recBox" style="margin-top:12px;overflow:auto"></div>
       </details>
     </section>
     <footer>課堂練習用途 · 30 題全對才算完成</footer>
   </div>
-<script src="app.js"></script>
+  <script src="app.js"></script>
+  <script src="questions.js"></script>
+  <script src="logic.js"></script>
 </body>
 </html>
