@@ -14,6 +14,14 @@ function normId(s) {
   if (!d) return "";
   return d.padStart(2, "0").slice(-2);
 }
+function picHTML(item) {
+  if (item && item.img && window.IMAGES && IMAGES[item.img]) {
+    const tall = item.img === "burette_diagram" ? " tall" : "";
+    return '<img class="qimg' + tall + '" src="' + IMAGES[item.img] + '" alt="">';
+  }
+  if (item && item.pic && typeof ICONS !== "undefined" && ICONS[item.pic]) return ICONS[item.pic];
+  return "";
+}
 function shuffledOrder() {
   const a = [0,1,2,3];
   for (let i = a.length - 1; i > 0; i--) {
@@ -88,7 +96,7 @@ function renderQ() {
   }
   document.getElementById("barFill").style.width = (doneCount / QUESTIONS.length * 100) + "%";
   document.getElementById("qText").textContent = (qi + 1) + ". " + item.q;
-  document.getElementById("picto").innerHTML = item.pic ? ICONS[item.pic] : "";
+  document.getElementById("picto").innerHTML = picHTML(item);
   const order = optionOrder[qi];
   const box = document.getElementById("opts");
   box.innerHTML = "";
@@ -186,7 +194,7 @@ document.getElementById("reviewBtn").onclick = () => {
   box.innerHTML = QUESTIONS.map((q, i) => {
     const ok = answers[i] === q.ans;
     const pick = answers[i] == null ? "—" : ["A","B","C","D"][answers[i]] + ". " + q.options[answers[i]];
-    return "<div style=\"padding:12px 0;border-bottom:1px solid var(--line);\"><div class=\"section-tag\">"+q.section+"</div><div style=\"font-weight:700;\">"+(i+1)+". "+q.q+"</div>"+(q.pic?"<div class=\"pictowrap\">"+ICONS[q.pic]+"</div>":"")+"<div style=\"margin-top:8px;\">你的答案：<strong style=\"color:"+(ok?"var(--ok)":"var(--bad)")+"\">"+pick+"</strong></div><div>正確答案：<strong>"+["A","B","C","D"][q.ans]+". "+q.options[q.ans]+"</strong></div><div class=\"explain\">"+q.exp+"</div></div>";
+    return "<div style=\"padding:12px 0;border-bottom:1px solid var(--line);\"><div class=\"section-tag\">"+q.section+"</div><div style=\"font-weight:700;\">"+(i+1)+". "+q.q+"</div>"+(picHTML(q)?"<div class=\"pictowrap\">"+picHTML(q)+"</div>":"")+"<div style=\"margin-top:8px;\">你的答案：<strong style=\"color:"+(ok?"var(--ok)":"var(--bad)")+"\">"+pick+"</strong></div><div>正確答案：<strong>"+["A","B","C","D"][q.ans]+". "+q.options[q.ans]+"</strong></div><div class=\"explain\">"+q.exp+"</div></div>";
   }).join("");
 };
 document.getElementById("againBtn").onclick = () => {
