@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>中三化學小測 · 30題</title>
   <style>
-    :root { --navy:#0b3a6e; --navy-2:#0e4a8c; --sky:#e8f1fb; --card:#fff; --ink:#1c2a3a; --muted:#5b6b7c; --line:#d5e0ea; --ok:#0f9d58; --ok-bg:#e8f8ef; --bad:#d93025; --bad-bg:#fdecea; --accent:#e67e22; --shadow:0 10px 30px rgba(11,58,110,.10); }
+    :root { --navy:#0b3a6e; --navy-2:#0e4a8c; --sky:#e8f1fb; --card:#fff; --ink:#1c2a3a; --muted:#5b6b7c; --line:#d5e0ea; --ok:#0f9d58; --ok-bg:#e8f8ef; --bad:#d93025; --bad-bg:#fdecea; --accent:#e67e22; --shadow:0 10px 30px rgba(11,58,110,.10); --wa:#128C7E; }
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;background:linear-gradient(180deg,#dceaf8 0%,#f4f7fb 220px,#f4f7fb 100%);color:var(--ink);min-height:100vh}
     .wrap{max-width:860px;margin:0 auto;padding:20px 16px 48px}
@@ -15,11 +15,12 @@
     .badge{background:var(--accent);color:#fff;font-weight:700;border-radius:999px;padding:6px 12px;font-size:.82rem;white-space:nowrap}
     .card{background:var(--card);border-radius:18px;box-shadow:var(--shadow);padding:22px;margin-top:16px;border:1px solid #e6eef6}
     label{display:block;font-weight:700;margin:12px 0 6px}
-    select,input[type=password]{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;font-size:1rem;background:#fff;font-family:inherit}
+    select,input[type=password],input[type=text]{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;font-size:1rem;background:#fff;font-family:inherit}
     select:focus,input:focus{outline:2px solid #8cb6e8;border-color:var(--navy-2)}
     .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;cursor:pointer;font-family:inherit;font-weight:700;border-radius:12px;padding:12px 18px;font-size:1rem}
     .btn-primary{background:var(--navy);color:#fff;width:100%;margin-top:18px}
     .btn-ghost{background:#eef3f8;color:var(--navy)}
+    .btn-wa{background:var(--wa);color:#fff;width:100%;margin-top:14px}
     .btn:disabled{opacity:.45;cursor:not-allowed}
     .row{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
     .hint{color:var(--muted);font-size:.9rem;margin-top:10px;line-height:1.5}
@@ -55,6 +56,7 @@
     #feedback.bad{background:var(--bad-bg);color:#a51f18;border:1px solid #f5c2be}
     #feedback.ok{background:var(--ok-bg);color:#0b7a43;border:1px solid #b7e4c7}
     .need-all{margin-top:8px;font-size:.86rem;color:var(--accent);font-weight:700}
+    #savedNote{margin-top:8px;color:#0b7a43;font-weight:700}
   </style>
 </head>
 <body>
@@ -65,11 +67,11 @@
     </header>
     <section id="loginCard" class="card">
       <h2 style="margin-bottom:8px">學生登入</h2>
-      <p class="hint">請選擇姓名並輸入課堂密碼。答對會自動下一題；答錯可按「下一題」繼續。全部試完後會重做錯題，全對才算完成。</p>
+      <p class="hint">請選擇姓名，密碼是你的學號兩位數字（例如周卓元輸入 01）。完成後會自動儲存成績，並可用 WhatsApp 傳給老師。</p>
       <label for="nameSel">學生姓名</label>
       <select id="nameSel"><option value="">— 請選擇 —</option></select>
-      <label for="pw">課堂密碼</label>
-      <input id="pw" type="password" autocomplete="off" placeholder="請輸入老師提供的密碼" />
+      <label for="pw">密碼（學號）</label>
+      <input id="pw" type="password" inputmode="numeric" maxlength="2" autocomplete="off" placeholder="例如 01" />
       <p class="error" id="loginErr"></p>
       <button class="btn btn-primary" id="loginBtn">進入小測</button>
     </section>
@@ -91,6 +93,8 @@
         <div class="score-num" id="scoreNum">0<span> / 30</span></div>
         <p id="scoreMsg" class="hint"></p>
         <p class="need-all" id="tryInfo"></p>
+        <p id="savedNote">成績已自動儲存在本機。</p>
+        <button class="btn btn-wa" id="waBtn">用 WhatsApp 傳送結果給老師</button>
       </div>
       <h3 style="margin-top:12px">分部表現</h3>
       <div id="sectionScores" style="margin-top:8px"></div>
